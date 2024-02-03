@@ -1,0 +1,136 @@
+# Databricks notebook source
+dbutils.fs.mounts()
+
+# COMMAND ----------
+
+dbutils.fs.mount(
+    source= 'wasbs://bronze@adlsgenee.blob.core.windows.net',
+    mount_point="/mnt/bronze",
+    extra_configs={
+        'fs.azure.account.key.adlsgenee.blob.core.windows.net': 'NYWNxtwb5TUlaWM4gDvIuOXtXOWgImXmE8tGBXtkE6RA4D6OiHKTKZbSGEvQqwE/C11e9q0jcYF8+ASt1yq2Pg=='
+    }
+)
+
+# COMMAND ----------
+
+dbutils.fs.mounts()
+
+
+# COMMAND ----------
+
+dbutils.fs.ls('/mnt/bronze/')
+
+# COMMAND ----------
+
+shivaji = spark.read.format('csv').option('header','true').option('inferschema','true').load('/mnt/bronze/account.csv')
+
+# COMMAND ----------
+
+display(k)
+
+# COMMAND ----------
+
+dbutils.fs.ls('/mnt/')
+
+# COMMAND ----------
+
+dbutils.fs.mounts( )
+
+# COMMAND ----------
+
+dbutils.fs.ls('/mnt/bronze/')
+
+# COMMAND ----------
+
+shivaji = spark.read.format('csv').option('header','true').option('inferschema','true').load('/mnt/bronze/account.csv')
+rohit = spark.read.format('csv').option('header','true').option('inferschema','true').load('/mnt/bronze/contact.csv')
+
+# COMMAND ----------
+
+display(shivaji)
+display(rohit)
+
+# COMMAND ----------
+
+from pyspark.sql import SparkSession
+#inner join
+#Retrieve a list of all accounts and their corresponding contacts
+
+# Assuming you have created SparkSession as 'spark'
+
+# Load accounts and contacts data
+accounts_data = [(1, "ABC Corporation", "Technology", 5000000.00, "2024-01-21 10:23:57.0000000"),
+                 (2, "XYZ Inc.", "Finance", 8000000.00, "2024-01-21 10:23:57.0000000"),
+                 (3, "LMN Ltd.", "Healthcare", 3000000.00, "2024-01-21 10:23:57.0000000")]
+
+contacts_data = [(1, "John", "Doe", "john.doe@email.com", "123-456-7890", 1, "2024-01-21 10:25:56.0000000"),
+                 (2, "Jane", "Smith", "jane.smith@email.com", "987-654-3210", 2, "2024-01-21 10:25:56.0000000"),
+                 (3, "Mike", "Johnson", "mike.johnson@email.com", "456-789-0123", 1, "2024-01-21 10:25:56.0000000")]
+
+accounts_schema = ["AccountID", "Name", "Industry", "AnnualRevenue", "CreatedDate"]
+contacts_schema = ["ContactID", "FirstName", "LastName", "Email", "Phone", "AccountID", "CreatedDate"]
+
+accounts_df = spark.createDataFrame(accounts_data, schema=accounts_schema)
+contacts_df = spark.createDataFrame(contacts_data, schema=contacts_schema)
+
+# Perform join
+result_df = accounts_df.join(contacts_df, "AccountID")
+
+# Show the result
+result_df.show()
+
+
+# COMMAND ----------
+
+#inner join
+
+#Retrieve a list of contacts along with their corresponding account information
+
+# Perform join
+result_df = contacts_df.join(accounts_df, "AccountID")
+
+# Show the result
+result_df.show()
+
+
+# COMMAND ----------
+
+#left join
+
+
+# Perform left join
+left_joined_df = accounts_df.join(contacts_df, "AccountID", "left")
+
+# Show the result
+left_joined_df.show()
+
+
+# COMMAND ----------
+
+#right join
+
+#Retrieve a DataFrame that includes all records from the contacts table and the matching records from the accounts table based on AccountID.
+#
+#
+# Perform right join
+right_joined_df = accounts_df.join(contacts_df, "AccountID", "right")
+
+# Show the result
+right_joined_df.show()
+
+
+# COMMAND ----------
+
+#full join
+
+#Retrieve a DataFrame that includes all records from both the accounts and contacts tables. Include null values where there is no match.
+# Perform full outer join
+full_outer_joined_df = accounts_df.join(contacts_df, "AccountID", "outer")
+
+# Show the result
+full_outer_joined_df.show()
+
+
+
+# COMMAND ----------
+
